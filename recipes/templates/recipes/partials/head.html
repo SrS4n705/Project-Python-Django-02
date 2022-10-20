@@ -241,18 +241,37 @@
             font-size: 1.6rem;
         }
 
-        .recipe-footer {
+        .recipe-footer a {
             background: var(--color-primary-dark);
             display: block;
             color: var(--color-white);
             text-decoration: none;
             text-align: center;
             padding: 1.8rem;
-            transition: all 300ms ease-in-out;
+            transition: all 500ms ease-in-out;
         }
 
         .recipe-footer a:hover {
-            filter: brightness(2);
+            filter: brightness(1.5);
+        }
+
+        .main-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--color-primary-dark);
+            color: var(--color-white);
+            padding: var(--spacing-gutter-large);
+        }
+
+        .main-footer a {
+            color: var(--color-dark-text);
+            text-decoration: none;
+            transition: all 300ms ease-in-out;
+        }
+
+        .main-footer a:hover {
+            filter: brightness(0.5)
         }
     </style>
 </head>
