@@ -1,6 +1,5 @@
 # from inspect import signature
-from random import randint, random
-from unicodedata import digit
+from random import randint
 
 from faker import Faker
 
@@ -32,7 +31,7 @@ def make_recipe():
             'name': fake.word()
         },
         'cover': {
-            'url': 'https://loremflickr.com/%s/%s/' % rand_ratio(),
+            'url': 'https://loremflickr.com/%s/%s/food,cook' % rand_ratio(),
         }
     }
 
