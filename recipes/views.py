@@ -5,9 +5,9 @@ from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.http.response import Http404
 from django.views.generic import DetailView, ListView
-from utils.pagination import make_pagination
 
 from recipes.models import Recipe
+from utils.pagination import make_pagination
 
 PER_PAGE = int(os.environ.get('PER_PAGE', 6))
 
@@ -23,6 +23,8 @@ class RecipeListViewBase(ListView):
         qs = qs.filter(
             is_published=True,
         )
+        qs = qs.select_related('author', 'category')
+        # qs = qs.prefetch_related('author', 'category')
         return qs
 
     def get_context_data(self, *args, **kwargs):
