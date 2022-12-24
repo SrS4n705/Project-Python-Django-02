@@ -2,10 +2,9 @@ from collections import defaultdict
 
 from django import forms
 from django.core.exceptions import ValidationError
-
 from recipes.models import Recipe
-from utils.recipes.django_forms import add_attr
-from utils.recipes.strings import is_positive_number
+from utils.django_forms import add_attr
+from utils.strings import is_positive_number
 
 
 class AuthorRecipeForm(forms.ModelForm):
@@ -15,7 +14,6 @@ class AuthorRecipeForm(forms.ModelForm):
         self._my_errors = defaultdict(list)
 
         add_attr(self.fields.get('preparation_steps'), 'class', 'span-2')
-        add_attr(self.fields.get('cover'), 'class', 'span-2')
 
     class Meta:
         model = Recipe
@@ -33,24 +31,22 @@ class AuthorRecipeForm(forms.ModelForm):
                     ('Porções', 'Porções'),
                     ('Pedaços', 'Pedaços'),
                     ('Pessoas', 'Pessoas'),
-                )
+                ),
             ),
             'preparation_time_unit': forms.Select(
                 choices=(
                     ('Minutos', 'Minutos'),
                     ('Horas', 'Horas'),
-                )
-            )
+                ),
+            ),
         }
 
     def clean(self, *args, **kwargs):
         super_clean = super().clean(*args, **kwargs)
         cd = self.cleaned_data
+
         title = cd.get('title')
         description = cd.get('description')
-
-        if len(title) < 5:
-            self._my_errors['title'].append('Must have at least 5 chars.')
 
         if title == description:
             self._my_errors['title'].append('Cannot be equal to description')
@@ -74,7 +70,7 @@ class AuthorRecipeForm(forms.ModelForm):
         field_value = self.cleaned_data.get(field_name)
 
         if not is_positive_number(field_value):
-            self._my_errors[field_name].append('Must be a positive number.')
+            self._my_errors[field_name].append('Must be a positive number')
 
         return field_value
 
@@ -83,6 +79,6 @@ class AuthorRecipeForm(forms.ModelForm):
         field_value = self.cleaned_data.get(field_name)
 
         if not is_positive_number(field_value):
-            self._my_errors[field_name].append('Must be a positive number.')
+            self._my_errors[field_name].append('Must be a positive number')
 
         return field_value

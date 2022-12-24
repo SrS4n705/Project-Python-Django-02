@@ -1,5 +1,4 @@
 from django.test import TestCase
-
 from recipes.models import Category, Recipe, User
 
 
@@ -61,8 +60,7 @@ class RecipeMixin:
 
     def make_recipe_in_batch(self, qtd=10):
         recipes = []
-
-        for i in range(8):
+        for i in range(qtd):
             kwargs = {
                 'title': f'Recipe Title {i}',
                 'slug': f'r{i}',

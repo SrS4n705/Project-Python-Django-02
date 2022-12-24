@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 from django.urls import resolve, reverse
-
 from recipes import views
 
 from .test_recipe_base import RecipeTestBase
@@ -10,7 +9,7 @@ from .test_recipe_base import RecipeTestBase
 class RecipeHomeViewTest(RecipeTestBase):
     def test_recipe_home_view_function_is_correct(self):
         view = resolve(reverse('recipes:home'))
-        self.assertIs(view.func, views.home)
+        self.assertIs(view.func.view_class, views.RecipeListViewHome)
 
     def test_recipe_home_view_returns_status_code_200_OK(self):
         response = self.client.get(reverse('recipes:home'))
@@ -52,37 +51,35 @@ class RecipeHomeViewTest(RecipeTestBase):
             response.content.decode('utf-8')
         )
 
-    @patch('recipes.views.PER_PAGE', new=3)
     def test_recipe_home_is_paginated(self):
+        self.make_recipe_in_batch(qtd=8)
 
-        for i in range(18):
-            kwargs = {'slug': f'r{i}', 'author_data': {'username': f'u{i}'}}
-            self.make_recipe(**kwargs)
+        with patch('recipes.views.PER_PAGE', new=3):
+            response = self.client.get(reverse('recipes:home'))
+            recipes = response.context['recipes']
+            paginator = recipes.paginator
 
-        response = self.client.get(reverse('recipes:home'))
-        recipes = response.context['recipes']
-        paginator = recipes.paginator
-
-        self.assertEqual(paginator.num_pages, 6)
-        self.assertEqual(len(paginator.get_page(1)), 3)
-        self.assertEqual(len(paginator.get_page(2)), 3)
-        self.assertEqual(len(paginator.get_page(3)), 3)
+            self.assertEqual(paginator.num_pages, 3)
+            self.assertEqual(len(paginator.get_page(1)), 3)
+            self.assertEqual(len(paginator.get_page(2)), 3)
+            self.assertEqual(len(paginator.get_page(3)), 2)
 
     def test_invalid_page_query_uses_page_one(self):
         self.make_recipe_in_batch(qtd=8)
 
         with patch('recipes.views.PER_PAGE', new=3):
-            response = self.client.get(reverse('recipes:home') + '?page=1A')
+            response = self.client.get(reverse('recipes:home') + '?page=12A')
             self.assertEqual(
-                response.context['recipes'].number, 1
+                response.context['recipes'].number,
+                1
             )
-
             response = self.client.get(reverse('recipes:home') + '?page=2')
             self.assertEqual(
-                response.context['recipes'].number, 2
+                response.context['recipes'].number,
+                2
             )
-
             response = self.client.get(reverse('recipes:home') + '?page=3')
             self.assertEqual(
-                response.context['recipes'].number, 3
+                response.context['recipes'].number,
+                3
             )

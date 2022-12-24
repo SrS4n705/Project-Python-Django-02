@@ -1,6 +1,5 @@
 from django import forms
-
-from utils.recipes.django_forms import add_placeholder
+from utils.django_forms import add_placeholder
 
 
 class LoginForm(forms.Form):

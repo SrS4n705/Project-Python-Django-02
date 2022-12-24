@@ -1,3 +1,4 @@
+from authors.forms.recipe_form import AuthorRecipeForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http.response import Http404
@@ -5,8 +6,6 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
-
-from authors.forms.recipe_form import AuthorRecipeForm
 from recipes.models import Recipe
 
 
@@ -50,14 +49,11 @@ class DashboardRecipe(View):
 
     def get(self, request, id=None):
         recipe = self.get_recipe(id)
-
         form = AuthorRecipeForm(instance=recipe)
-
         return self.render_recipe(form)
 
     def post(self, request, id=None):
         recipe = self.get_recipe(id)
-
         form = AuthorRecipeForm(
             data=request.POST or None,
             files=request.FILES or None,
@@ -65,6 +61,7 @@ class DashboardRecipe(View):
         )
 
         if form.is_valid():
+            # Agora, o form é válido e eu posso tentar salvar
             recipe = form.save(commit=False)
 
             recipe.author = request.user
@@ -74,8 +71,13 @@ class DashboardRecipe(View):
             recipe.save()
 
             messages.success(request, 'Sua receita foi salva com sucesso!')
-            return redirect(reverse('authors:dashboard_recipe_edit',
-                                    args=(recipe.id,)))
+            return redirect(
+                reverse(
+                    'authors:dashboard_recipe_edit', args=(
+                        recipe.id,
+                    )
+                )
+            )
 
         return self.render_recipe(form)
 

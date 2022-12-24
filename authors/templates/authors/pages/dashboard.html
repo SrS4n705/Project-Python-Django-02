@@ -1,20 +1,21 @@
 {% extends 'global/base.html' %}
 
-{% block title %}Register | {% endblock title %}
+{% block title %}Dashboard ({{ user }}) | {% endblock title %}
 
 {% block content %}
   <div class="main-content center container">
     <h2>Dashboard ({{ user }})</h2>
+
     {% include 'authors/partials/login_message.html' %}
-    {% include 'recipes/partials/messages.html' %}
+    {% include 'global/partials/messages.html' %}
 
     <div class="authors-dashboard-container">
       <h3>Your recipes</h3>
-      
+
       <ul>
         {% for recipe in recipes %}
           <li>
-            <a href="{% url 'authors:dashboard_recipe_edit' recipe.id %}">{{ recipe.title }}</a> 
+            <a href="{% url 'authors:dashboard_recipe_edit' recipe.id %}">{{ recipe.title }}</a> - 
             <form 
             class="inline-form form-delete" 
             action="{% url 'authors:dashboard_recipe_delete' %}" 
@@ -22,9 +23,8 @@
             >
               {% csrf_token %}
               <input type="hidden" name="id" value="{{ recipe.id }}">
-              <button class="plaintext-button" type="submit"> ✖️ </button>
+              <button class="plaintext-button" type="submit">❌</button>
             </form>
-          
           </li>
         {% empty %}
           <li>
@@ -33,8 +33,7 @@
         {% endfor %}
       </ul>
     </div>
-  </div>  
-  
+  </div>
 
 
-{% endblock content %}
+  {% endblock content %}
