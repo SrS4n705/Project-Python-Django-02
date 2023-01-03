@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Django Rest Framework
+    'rest_framework',
     # A gente tem apps também
     'recipes',
     'authors',
@@ -157,3 +159,5 @@ MESSAGE_TAGS = {
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+APPEND_SLASH = False

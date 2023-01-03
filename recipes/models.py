@@ -1,28 +1,19 @@
 import os
+import string
 from collections import defaultdict
+from random import SystemRandom
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-# from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import F, Value
 from django.db.models.functions import Concat
+from django.forms import ValidationError
 from django.urls import reverse
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 from PIL import Image
-
 from tag.models import Tag
-
-
-class RecipeManager(models.Manager):
-    def get_published(self):
-        return self.filter(
-            is_published=True
-        ).annotate(
-            author_full_name=Concat(F('author__first_name'), Value(' '),
-                                    F('author__last_name'), Value(' ('),
-                                    F('author__username'), Value(')'))).order_by('-id')
 
 
 class Category(models.Model):
@@ -32,9 +23,25 @@ class Category(models.Model):
         return self.name
 
 
+class RecipeManager(models.Manager):
+    def get_published(self):
+        return self.filter(
+            is_published=True
+        ).annotate(
+            author_full_name=Concat(
+                F('author__first_name'), Value(' '),
+                F('author__last_name'), Value(' ('),
+                F('author__username'), Value(')'),
+            )
+        ) \
+            .order_by('-id') \
+            .select_related('category', 'author') \
+            .prefetch_related('tags')
+
+
 class Recipe(models.Model):
     objects = RecipeManager()
-    title = models.CharField(max_length=65)
+    title = models.CharField(max_length=65, verbose_name=_('Title'))
     description = models.CharField(max_length=165)
     slug = models.SlugField(unique=True)
     preparation_time = models.IntegerField()
@@ -55,7 +62,6 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True
     )
-    # tags = GenericRelation(Tag, related_query_name='recipes')
     tags = models.ManyToManyField(Tag, blank=True, default='')
 
     def __str__(self):
@@ -74,20 +80,24 @@ class Recipe(models.Model):
             image_pillow.close()
             return
 
-        new_height = round((new_width * original_height / original_width))
+        new_height = round((new_width * original_height) / original_width)
 
         new_image = image_pillow.resize((new_width, new_height), Image.LANCZOS)
-
         new_image.save(
             image_full_path,
             optimize=True,
-            quality=60,
+            quality=50,
         )
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            slug = f'{slugify(self.title)}'
-            self.slug = slug
+            rand_letters = ''.join(
+                SystemRandom().choices(
+                    string.ascii_letters + string.digits,
+                    k=5,
+                )
+            )
+            self.slug = slugify(f'{self.title}-{rand_letters}')
 
         saved = super().save(*args, **kwargs)
 
@@ -112,5 +122,9 @@ class Recipe(models.Model):
                     'Found recipes with the same title'
                 )
 
-            if error_messages:
-                raise ValidationError(error_messages)
+        if error_messages:
+            raise ValidationError(error_messages)
+
+    class Meta:
+        verbose_name = _('Recipe')
+        verbose_name_plural = _('Recipes')
