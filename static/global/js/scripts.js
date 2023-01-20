@@ -42,3 +42,16 @@
     buttonShowMenu.addEventListener('click', showMenu);
   }
 })();
+
+(() => {
+  const authorsLogoutLinks = document.querySelectorAll('.authors-logout-link');
+  const formlogout = document.querySelector('.form-logout');
+
+  for (const link of authorsLogoutLinks) {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      formlogout.submit();
+    });
+  }
+})();
